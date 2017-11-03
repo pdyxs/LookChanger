@@ -7,11 +7,12 @@ using UnityEditor;
 
 namespace PDYXS.Skins
 {
+    [SaveLocation("Assets/Config/Resources", "Look Changer")]
     public class SkinConfig : ScriptableConfig<SkinConfig>
     {
 
 #if UNITY_EDITOR
-        [MenuItem("Assets/Skin Configuration")]
+        [MenuItem("Assets/Configuration/Look Changer")]
         public static void Create() {
             create();
         }
