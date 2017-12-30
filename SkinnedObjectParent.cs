@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using QByte.View;
 using UnityEngine.Events;
+using System.Reflection;
+using PDYXS.ThingSpawner;
 
 namespace PDYXS.Skins
 {
@@ -13,12 +15,19 @@ namespace PDYXS.Skins
 
         public bool automaticallyInitialise = false;
 
-        public UnityEngine.Object initialisingObject;
+        public Component initialisingObject;
+        [HideInInspector]
+        public string initialisingObjectProperty;
+        [HideInInspector]
+        public string initialisingObjectField;
 
         private SkinnedObject skinnedObject;
 
         private delegate void ListenerFunc();
         private UnityAction listenerFunc = null;
+
+        [SerializeField]
+        private EntityControllerPrefabSaver saver;
 
         private void OnDisable()
         {
@@ -38,18 +47,72 @@ namespace PDYXS.Skins
 
         protected virtual void Start()
         {
-            if (automaticallyInitialise) {
-                foreach (Transform child in transform)
-                {
-                    child.Recycle();
-                }
-                if (initialisingObject != null) {
-                    Init(initialisingObject);
-                } else {
-                    Init();
-                }
+            foreach (Transform obj in transform)
+            {
+                DestroyImmediate(obj.gameObject);
+            }
+            if (automaticallyInitialise)
+            {
+                StartCoroutine(WaitToInitialise());
             }
         }
+
+        private IEnumerator WaitToInitialise() {
+            yield return new WaitForEndOfFrame();
+            if (initialisingObject != null)
+            {
+                if (initialisingObjectProperty != "")
+                {
+                    var field = initialisingObject.GetType().GetProperty(initialisingObjectProperty);
+                    if (field != null)
+                    {
+                        Init(field.GetValue(initialisingObject));
+                    }
+                }
+                else
+                {
+                    Init(initialisingObject);
+                }
+            }
+            else
+            {
+                Init();
+            }
+        }
+
+#if UNITY_EDITOR
+        [ExecuteInEditMode]
+        private void Awake()
+        {
+            if (!Application.isPlaying)
+            {
+                EditorBuild();
+            }
+        }
+
+        public void EditorBuild() {
+            var skinManager = FindObjectOfType<SkinManager>();
+            if (skinManager != null)
+            {
+                EditorBuild(skinManager.Skin);
+            }
+        }
+
+        public void EditorBuild(Skin skin) {
+            foreach (Transform obj in transform) {
+                DestroyImmediate(obj.gameObject);
+            }
+
+            if (skin != null) {
+                var obj = UnityEditor.PrefabUtility.InstantiatePrefab(
+                    skin.prefabs[objectName]
+                ) as MonoBehaviour;
+                obj.transform.SetParent(transform);
+                obj.transform.localScale = Vector3.one;
+                obj.gameObject.hideFlags = HideFlags.DontSaveInBuild;
+            }
+        }
+#endif
 
         public void Init()
         {
@@ -58,7 +121,7 @@ namespace PDYXS.Skins
             SkinManager.instance.OnSkinChanged.AddListener(listenerFunc);
         }
 
-        public void Init<T>(T obj)
+        public void Init(object obj)
         {
             BuildObject(obj);
             listenerFunc = () =>
@@ -68,7 +131,7 @@ namespace PDYXS.Skins
             SkinManager.instance.OnSkinChanged.AddListener(listenerFunc);
         }
 
-        public void Init<T, U>(T obj0, U obj1)
+        public void Init(object obj0, object obj1)
         {
             BuildObject(obj0, obj1);
             listenerFunc = () =>
@@ -83,13 +146,13 @@ namespace PDYXS.Skins
             BuildObject();
         }
 
-        public void Replace<T>(T obj)
+        public void Replace(object obj)
         {
             skinnedObject.Recycle();
             BuildObject(obj);
         }
 
-        public void Replace<T, U>(T obj0, U obj1)
+        public void Replace(object obj0, object obj1)
         {
             skinnedObject.Recycle();
             BuildObject(obj0, obj1);
@@ -103,29 +166,15 @@ namespace PDYXS.Skins
             }
         }
 
-        private void BuildObject<T>(T obj) {
+        private void BuildObject(object obj) {
             DoSpawn();
-            var so = skinnedObject as SkinnedObject<T>;
-            if (so != null)
-            {
-                so.Init(obj);
-            } else {
-                Debug.LogWarning("Could not initialise Skinned Object: " + gameObject.name);
-            }
+            skinnedObject.Init(obj);
         }
 
-        private void BuildObject<T, U>(T obj0, U obj1)
+        private void BuildObject(object obj0, object obj1)
         {
             DoSpawn();
-            var so = skinnedObject as SkinnedObject<T,U>;
-            if (so != null)
-            {
-                so.Init(obj0, obj1);
-            }
-            else
-            {
-                Debug.LogWarning("Could not initialise Skinned Object: " + gameObject.name);
-            }
+            skinnedObject.Init(obj0, obj1);
         }
 
         private void DoSpawn() 

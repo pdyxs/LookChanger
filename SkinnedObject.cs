@@ -10,31 +10,19 @@ namespace PDYXS.Skins
             initialise();
         }
 
-        protected virtual void initialise() {}
-    }
-
-    public abstract class SkinnedObject<T> : SkinnedObject
-    {
-        public void Init(T obj) {
-            Init();
-            initialise(obj);
+        public void Init(object o) {
+            initialise(o);
         }
 
-        protected override void initialise() {}
-
-        protected abstract void initialise(T obj);
-    }
-
-    public abstract class SkinnedObject<T, U> : SkinnedObject
-    {
-        public void Init(T obj0, U obj1)
+        public void Init(object o1, object o2)
         {
-            Init();
-            initialise(obj0, obj1);
+            initialise(o1, o2);
         }
 
-        protected override void initialise() { }
+        protected virtual void initialise() {}
 
-        protected abstract void initialise(T obj0, U obj1);
+        protected virtual void initialise(object o) { }
+
+        protected virtual void initialise(object o1, object o2) { }
     }
 }

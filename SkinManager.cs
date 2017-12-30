@@ -5,10 +5,12 @@ using UnityEngine.Events;
 
 namespace PDYXS.Skins
 {
-    public class SkinManager : MonoSingleton<SkinManager>
+    public class SkinManager : MonoSemiSingleton<SkinManager>
     {
         private List<Skin> initialisedSkins = new List<Skin>();
 
+        [SerializeField]
+        [HideInInspector]
         private Skin skin;
 
         public class SkinChangeEvent : UnityEvent {}
@@ -18,12 +20,19 @@ namespace PDYXS.Skins
         {
             get
             {
-                if (skin == null) {
+                if (skin == null)
+                {
                     skin = SkinConfig.Get().defaultSkin;
                     SetupSkin();
                 }
                 return skin;
             }
+#if UNITY_EDITOR
+            set
+            {
+                skin = value;
+            }
+#endif
         }
 
         public void ChangeSkin(Skin newSkin) {
