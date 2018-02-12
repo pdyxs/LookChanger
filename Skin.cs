@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using QByte.Story;
 
 namespace PDYXS.Skins
 {
     [CreateAssetMenu(fileName = "Game Skin", menuName = "Game Skin", order = 100)]
     public class Skin : ScriptableObject
     {
-        public QStoryConfig storyConfig;
-
         [HideInInspector]
         public SkinDictionary prefabs = new SkinDictionary();
 
