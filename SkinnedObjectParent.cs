@@ -103,7 +103,7 @@ namespace PDYXS.Skins
                 DestroyImmediate(obj.gameObject);
             }
 
-            if (skin != null) {
+            if (skin != null && skin.prefabs[objectName] != null) {
                 var obj = UnityEditor.PrefabUtility.InstantiatePrefab(
                     skin.prefabs[objectName]
                 ) as MonoBehaviour;

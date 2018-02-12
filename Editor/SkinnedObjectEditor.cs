@@ -17,14 +17,18 @@ namespace PDYXS.Skins
         public SkinnedObjectParent parent {
             get {
                 if (_parent == null) {
-                    _parent = skinnedObject.transform.parent.GetComponent<SkinnedObjectParent>();
+                    var p = skinnedObject.transform.parent;
+                    if (p != null)
+                    {
+                        _parent = p.GetComponent<SkinnedObjectParent>();
+                    }
                 }
                 return _parent;
             }
         }
         private SkinnedObjectParent _parent;
 
-        public Skin[] skins {
+        public static Skin[] skins {
             get {
                 if (_skins == null) {
                     var skinGuids = AssetDatabase.FindAssets("t:Skin");
@@ -36,13 +40,13 @@ namespace PDYXS.Skins
                 return _skins;
             }
         }
-        private Skin[] _skins;
+        private static Skin[] _skins;
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            if (parent.objectName != "")
+            if (parent != null && parent.objectName != "")
             {
                 foreach (var skin in skins)
                 {
