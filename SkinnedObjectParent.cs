@@ -26,7 +26,7 @@ namespace PDYXS.Skins
         private UnityAction listenerFunc = null;
 
         [SerializeField]
-        private EntityControllerPrefabSaver saver;
+        private PrefabSaver saver;
 
         private void OnDisable()
         {

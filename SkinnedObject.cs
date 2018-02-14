@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PDYXS.ThingSpawner;
 
 namespace PDYXS.Skins
 {
-    public class SkinnedObject : MonoBehaviour
+    public class SkinnedObject : MonoBehaviour, IPrefabSaveable
     {
         public void Init() {
             initialise();
